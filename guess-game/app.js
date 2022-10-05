@@ -34,6 +34,7 @@ function game() {
     max += 1;
     console.log("win");
   } else {
+    alert("Try again")
     console.log("nop");
   }
 }
