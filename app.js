@@ -1,40 +1,57 @@
-const btn = document.querySelector("#startBtn");
-const user = document.querySelector("#user");
-const userGuess = document.querySelector("#userGuess");
-const stageNode = document.querySelector(".stage");
-const pointNode = document.querySelector(".point");
+var http = require('http');
+var url = require('url');
+var fs = require('fs');
+var path = require('path');
 
-//Get username
-const userInput = prompt("Enter your username");
-user.innerHTML = userInput == null ? "User" : userInput;
+const mimetypes = {
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'png': 'image/png',
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpg'
+};
 
-btn.addEventListener("click", game);
+var portname = '127.0.0.1';
+var port = '8080';
 
-// Game logic
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+http.createServer((req, res) => {
+    var myuri = url.parse(req.url).pathname;
+    var filename = path.join(process.cwd(), unescape(myuri));
+    console.log('File you are looking for is:' + filename);
+    var loadFile;
 
-let min = 1;
-let max = 2;
-let stage = 1;
-let point = 0
-function game() {
-  let computerGuess = getRandomInt(min, max);
-  let guess = Number(userGuess.value);
-  console.log({ computerGuess });
-  if (guess == computerGuess) {
-    alert("You win");
-    point += 1
-    stage += 1;
-    pointNode.textContent = point
-    stageNode.textContent = stage;
-    max += 1;
-    console.log("win");
-  } else {
-    alert("Try again")
-    console.log("nop");
-  }
-}
+    try {
+        loadFile = fs.lstatSync(filename);
+    } catch (error) {
+        res.writeHead(404, {
+            "Content-Type": 'text/plain'
+        });
+        res.write('404 Internal Error');
+        res.end();
+        return;
+    }
+
+    if (loadFile.isFile()) {
+        var mimeType = mimetypes[path.extname(filename).split('.').reverse()[0]];
+        res.writeHead(200, {
+            "Content-Type": mimeType
+        });
+        var filestream = fs.createReadStream(filename);
+        filestream.pipe(res);
+    } else if (loadFile.isDirectory()) {
+        res.writeHead(302, {
+            'Location': 'about.html'
+        });
+        res.end();
+    } else {
+        res.writeHead(500, {
+            "Content-Type": 'text/plain'
+        });
+        res.write('500 Internal Error');
+        res.end();
+    }
+
+}).listen(port, portname, () => {
+    console.log(`Server is running on server http://${portname}:${port}`);
+});
