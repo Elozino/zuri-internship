@@ -40,9 +40,9 @@ main > section {
   height: 100%;
 }
 
-section > div {
+/* section > div {
   width: 50%;
-}
+} */
 
 ul {
   list-style: none;
