@@ -17,3 +17,5 @@ router.delete('/:id', deletePost)
 
 // update post
 router.put('/:id', updatePost)
+
+export default router
