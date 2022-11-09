@@ -1,17 +1,21 @@
-import router from "./routes/postRoutes"
-import express from express
-import mongoose from mongoose
+import express from "express";
+import router from "./routes/postRoutes.js";
+import mongoose from "mongoose";
 
+const app = express();
+const PORT = 8000;
 
-const app = express()
-const PORT = 8000
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }))
+app.use("/", router);
 
-app.use("/", router)
+const dbURI =
+  "mongodb+srv://Elozino:zuri1234@zuri-internship-cluster.dfxvkrn.mongodb.net/zuri-todo-app?retryWrites=true&w=majority";
 
-app.listen(PORT, ()=> {
-  console.log(`Listening on Port ${PORT}`)
-})
+mongoose
+  .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then((result) => app.listen(PORT, console.log("connect to db")))
+  .catch((err) => console.log(err));
 
-const db = ""
-mongoose.connect(db, {})
-
+// app.listen(PORT, ()=> console.log("Running"))
